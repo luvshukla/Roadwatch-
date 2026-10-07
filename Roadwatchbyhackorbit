@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#06111f">
+
+<title>RoadWatch AI — Madhya Pradesh</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family:Arial,Helvetica,sans-serif;
+    background:#06111f;
+    color:white;
+    min-height:100vh;
+}
+
+header{
+    padding:20px 16px 10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:23px;
+    font-weight:800;
+}
+
+.logo span{
+    color:#18bfff;
+}
+
+.status{
+    background:#10263b;
+    color:#63e6be;
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:12px;
+}
+
+.container{
+    width:100%;
+    max-width:700px;
+    margin:auto;
+    padding:12px 15px 45px;
+}
+
+.hero{
+    background:linear-gradient(135deg,#0877d9,#0647df);
+    border-radius:27px;
+    padding:25px 20px;
+    margin-bottom:18px;
+}
+
+.badge{
+    display:inline-block;
+    background:rgba(255,255,255,.15);
+    padding:8px 12px;
+    border-radius:20px;
+    font-size:11px;
+    margin-bottom:15px;
+}
+
+.hero h1{
+    font-size:34px;
+    line-height:1.05;
+    margin-bottom:12px;
+}
+
+.hero p{
+    color:#dceeff;
+    font-size:15px;
+    line-height:1.5;
+}
+
+.card{
+    background:#0b2032;
+    border:1px solid #173b55;
+    border-radius:21px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.card h2{
+    font-size:20px;
+    margin-bottom:15px;
+}
+
+.camera{
+    width:100%;
+    background:#02080e;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid #29475e;
+    min-height:250px;
+}
+
+#video{
+    width:100%;
+    display:none;
+    max-height:420px;
+    object-fit:cover;
+}
+
+#photoPreview{
+    width:100%;
+    display:none;
+    max-height:420px;
+    object-fit:contain;
+    background:#000;
+}
+
+.cameraPlaceholder{
+    min-height:250px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+    color:#8fa8bb;
+    padding:25px;
+}
+
+.cameraIcon{
+    font-size:54px;
+    margin-bottom:10px;
+}
+
+.cameraControls{
+    display:none;
+    gap:8px;
+}
+
+.cameraControls button{
+    flex:1;
+}
+
+button{
+    width:100%;
+    border:0;
+    border-radius:14px;
+    padding:15px;
+    margin-top:11px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+button:active{
+    transform:scale(.98);
+}
+
+.primary{
+    background:#12bce9;
+    color:#00111b;
+}
+
+.secondary{
+    background:#12334d;
+    color:white;
+}
+
+.success{
+    background:#16a66a;
+    color:white;
+}
+
+.gov{
+    background:#f2a900;
+    color:#151000;
+}
+
+.danger{
+    background:#9f3045;
+    color:white;
+}
+
+input[type=file]{
+    display:none;
+}
+
+select{
+    width:100%;
+    background:#071727;
+    border:1px solid #31516b;
+    color:white;
+    padding:15px;
+    border-radius:13px;
+    font-size:16px;
+    margin-top:8px;
+    outline:none;
+}
+
+label{
+    display:block;
+    color:#a8bfd0;
+    font-size:13px;
+    margin-top:14px;
+}
+
+.gps{
+    background:#071827;
+    border-radius:15px;
+    padding:15px;
+    line-height:1.8;
+    font-size:14px;
+}
+
+.value{
+    color:#54e5a0;
+    word-break:break-word;
+}
+
+.small{
+    color:#8da7ba;
+    font-size:12px;
+    line-height:1.5;
+    margin-top:10px;
+}
+
+.divider{
+    height:1px;
+    background:#19364d;
+    margin:12px 0;
+}
+
+#roadMap{
+    width:100%;
+    height:350px;
+    border-radius:18px;
+    overflow:hidden;
+    border:1px solid #29475e;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip{
+    background:#0b2032;
+    color:white;
+}
+
+.report{
+    display:none;
+}
+
+.reportBox{
+    background:#06131f;
+    border-radius:15px;
+    padding:15px;
+    white-space:pre-line;
+    line-height:1.65;
+    font-size:13px;
+    overflow-wrap:anywhere;
+}
+
+.severity{
+    display:inline-block;
+    padding:7px 12px;
+    border-radius:20px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.low{
+    background:#174f38;
+    color:#68f5ad;
+}
+
+.medium{
+    background:#62500c;
+    color:#ffe066;
+}
+
+.high{
+    background:#63330d;
+    color:#ffad66;
+}
+
+.critical{
+    background:#681b29;
+    color:#ff7b91;
+}
+
+.aiBox{
+    background:#071827;
+    border:1px solid #23465f;
+    border-radius:15px;
+    padding:15px;
+    margin-top:14px;
+    display:none;
+    line-height:1.7;
+}
+
+.successBox{
+    background:#0b3d2c;
+    border:1px solid #176b4c;
+    border-radius:15px;
+    padding:15px;
+    margin-top:12px;
+    line-height:1.6;
+}
+
+.warningBox{
+    background:#3b3008;
+    border:1px solid #69580d;
+    border-radius:15px;
+    padding:15px;
+    margin-top:12px;
+    line-height:1.6;
+    color:#ffe99a;
+}
+
+.complaintBox{
+    display:none;
+    background:#071827;
+    border:1px solid #18bfff;
+    border-radius:17px;
+    padding:16px;
+    margin-top:15px;
+}
+
+.complaintId{
+    color:#54e5a0;
+    font-weight:bold;
+}
+
+.historyItem{
+    background:#071827;
+    border-radius:14px;
+    padding:13px;
+    margin-top:10px;
+    border-left:4px solid #18bfff;
+    line-height:1.6;
+}
+
+.footer{
+    text-align:center;
+    padding:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+🚦 RoadWatch <span>AI</span>
+</div>
+
+<div class="status" id="status">
+● Ready
+</div>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- HERO -->
+
+<section class="hero">
+
+<div class="badge">
+MADHYA PRADESH CIVIC REPORTING
+</div>
+
+<h1>
+Make roads safer.
+</h1>
+
+<p>
+Capture a road problem, save your location,
+analyse the issue, generate a government-ready
+complaint and view road reports on the map.
+</p>
+
+</section>
+
+
+<!-- CAMERA -->
+
+<section class="card">
+
+<h2>📷 Road Evidence</h2>
+
+<div class="camera">
+
+<div class="cameraPlaceholder" id="cameraPlaceholder">
+
+<div class="cameraIcon">📸</div>
+
+<b>Camera ready</b>
+
+<br>
+
+<span>
+Capture or upload road evidence.
+</span>
+
+</div>
+
+<video
+id="video"
+autoplay
+playsinline
+muted>
+</video>
+
+<img
+id="photoPreview"
+alt="Road evidence">
+
+</div>
+
+
+<div
+class="cameraControls"
+id="cameraControls">
+
+<button
+type="button"
+class="primary"
+id="captureButton">
+
+📸 Capture
+
+</button>
+
+<button
+type="button"
+class="secondary"
+id="switchCameraButton">
+
+🔄 Switch
+
+</button>
+
+</div>
+
+
+<button
+type="button"
+class="primary"
+id="startCameraButton">
+
+📷 Start Camera
+
+</button>
+
+
+<button
+type="button"
+class="secondary"
+id="retakeButton"
+style="display:none">
+
+🔄 Retake
+
+</button>
+
+
+<input
+type="file"
+id="fileInput"
+accept="image/*"
+capture="environment">
+
+
+<button
+type="button"
+class="secondary"
+id="fileButton">
+
+📁 Upload / Camera
+
+</button>
+
+</section>
+
+
+<!-- LOCATION -->
+
+<section class="card">
+
+<h2>📍 My Saved Location</h2>
+
+<div class="gps">
+
+<div>
+Latitude:
+<span
+class="value"
+id="latitude">
+Not available
+</span>
+</div>
+
+<div>
+Longitude:
+<span
+class="value"
+id="longitude">
+Not available
+</span>
+</div>
+
+<div>
+Accuracy:
+<span
+class="value"
+id="accuracy">
+Not available
+</span>
+</div>
+
+<div class="divider"></div>
+
+<div>
+📍 Area:
+<span
+class="value"
+id="area">
+Waiting for GPS...
+</span>
+</div>
+
+<div>
+🏙️ City:
+<span
+class="value"
+id="city">
+Waiting for GPS...
+</span>
+</div>
+
+<div>
+🗺️ State:
+<span
+class="value"
+id="state">
+Madhya Pradesh
+</span>
+</div>
+
+</div>
+
+
+<button
+type="button"
+class="primary"
+id="locationButton">
+
+📍 Mark & Save My Location
+
+</button>
+
+
+<button
+type="button"
+class="secondary"
+id="centerMapButton">
+
+🎯 Show My Saved Location
+
+</button>
+
+
+<button
+type="button"
+class="danger"
+id="clearLocationButton">
+
+🗑️ Clear Saved Location
+
+</button>
+
+
+<div class="small">
+
+Your location is saved locally in this browser.
+It is not automatically sent anywhere.
+
+</div>
+
+</section>
+
+
+<!-- MAP -->
+
+<section class="card">
+
+<h2>🗺️ RoadWatch Map</h2>
+
+<div id="roadMap"></div>
+
+<div class="small">
+
+🔴 Critical &nbsp;
+🟠 High &nbsp;
+🟡 Medium &nbsp;
+🟢 Low
+
+</div>
+
+</section>
+
+
+<!-- AI -->
+
+<section class="card">
+
+<h2>🤖 AI Road Analysis</h2>
+
+<label>
+Road problem
+</label>
+
+<select id="problem">
+
+<option value="Pothole">
+🕳️ Pothole
+</option>
+
+<option value="Road Crack">
+⚠️ Road Crack
+</option>
+
+<option value="Broken Road">
+🚧 Broken Road
+</option>
+
+<option value="Waterlogging">
+💧 Waterlogging
+</option>
+
+<option value="Road Collapse">
+🚨 Road Collapse
+</option>
+
+<option value="Debris / Obstruction">
+🪨 Debris / Obstruction
+</option>
+
+<option value="Damaged Road Marking">
+🛣️ Damaged Road Marking
+</option>
+
+<option value="Street Light Problem">
+💡 Street Light Problem
+</option>
+
+<option value="Other Road Issue">
+❓ Other Road Issue
+</option>
+
+</select>
+
+
+<label>
+Severity
+</label>
+
+<select id="severity">
+
+<option value="Auto">
+🤖 Auto Detect
+</option>
+
+<option value="Low">
+🟢 Low
+</option>
+
+<option value="Medium">
+🟡 Medium
+</option>
+
+<option value="High">
+🟠 High
+</option>
+
+<option value="Critical">
+🔴 Critical
+</option>
+
+</select>
+
+
+<button
+type="button"
+class="primary"
+id="analyseButton">
+
+🤖 Analyse & Generate Report
+
+</button>
+
+
+<div
+class="aiBox"
+id="aiBox">
+
+<div id="aiResult"></div>
+
+</div>
+
+</section>
+
+
+<!-- REPORT -->
+
+<section
+class="card report"
+id="reportSection">
+
+<h2>📋 RoadWatch Report</h2>
+
+<div id="severityBadge"></div>
+
+<div
+class="reportBox"
+id="reportText">
+</div>
+
+
+<button
+type="button"
+class="gov"
+id="prepareComplaintButton">
+
+🏛️ Generate Government Complaint
+
+</button>
+
+
+<button
+type="button"
+class="secondary"
+id="copyReportButton">
+
+📋 Copy Report
+
+</button>
+
+
+<button
+type="button"
+class="success"
+id="shareButton">
+
+📤 Share Report
+
+</button>
+
+</section>
+
+
+<!-- COMPLAINT -->
+
+<section class="card">
+
+<h2>🏛️ Government Complaint</h2>
+
+<div class="warningBox">
+
+<b>RoadWatch prepares the complaint automatically.</b>
+
+<br><br>
+
+The official government portal may still require
+your details and OTP verification.
+
+</div>
+
+
+<button
+type="button"
+class="gov"
+id="createComplaintButton">
+
+📝 Create Complaint
+
+</button>
+
+
+<div
+class="complaintBox"
+id="complaintBox">
+
+<div class="successBox">
+
+<b>✅ Complaint Ready</b>
+
+<br><br>
+
+Complaint ID:
+
+<span
+class="complaintId"
+id="complaintId">
+</span>
+
+</div>
+
+
+<br>
+
+<div
+class="reportBox"
+id="complaintText">
+</div>
+
+
+<button
+type="button"
+class="primary"
+id="copyComplaintButton">
+
+📋 Copy Complete Complaint
+
+</button>
+
+
+<button
+type="button"
+class="gov"
+id="openComplaintButton">
+
+🏛️ Open MP Complaint Portal
+
+</button>
+
+</div>
+
+</section>
+
+
+<!-- TRACKING -->
+
+<section class="card">
+
+<h2>🔎 Track Complaint</h2>
+
+<div class="small">
+
+After submitting your complaint on the official
+portal, use the tracking system to check its status.
+
+</div>
+
+<button
+type="button"
+class="secondary"
+id="trackButton">
+
+🔎 Track MP Complaint
+
+</button>
+
+</section>
+
+
+<!-- HISTORY -->
+
+<section class="card">
+
+<h2>📊 Road Reports</h2>
+
+<div id="history">
+
+<div class="small">
+No reports yet.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- GOVERNMENT -->
+
+<section class="card">
+
+<h2>🏛️ Government Services</h2>
+
+<button
+type="button"
+class="gov"
+id="governmentButton">
+
+🏛️ Open MP CM Helpline
+
+</button>
+
+
+<button
+type="button"
+class="secondary"
+id="ramsButton">
+
+🛣️ Open MP Road Portal
+
+</button>
+
+</section>
+
+
+<div class="footer">
+
+<div class="small">
+
+RoadWatch AI Prototype<br>
+Evidence-based civic reporting for Madhya Pradesh
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let latitude = null;
+let longitude = null;
+let accuracy = null;
+
+let areaName = "Unknown";
+let cityName = "Unknown";
+let stateName = "Madhya Pradesh";
+
+let photoData = null;
+
+let cameraStream = null;
+
+let currentFacingMode = "environment";
+
+let roadMap = null;
+let userMarker = null;
+
+let currentReport = null;
+
+
+/* =====================================================
+   GOVERNMENT LINKS
+===================================================== */
+
+const MP_COMPLAINT =
+"https://www.cmhelpline.mp.gov.in/Public/OnlineComplaint.aspx";
+
+const MP_STATUS =
+"https://www.cmhelpline.mp.gov.in/grievance-status.aspx";
+
+const MP_RAMS =
+"https://rams.mp.gov.in/rams/CitizenPortal.jsp";
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const video =
+document.getElementById("video");
+
+const preview =
+document.getElementById("photoPreview");
+
+const placeholder =
+document.getElementById("cameraPlaceholder");
+
+const cameraControls =
+document.getElementById("cameraControls");
+
+const statusElement =
+document.getElementById("status");
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+function setStatus(text){
+
+statusElement.textContent =
+"● " + text;
+
+}
+
+
+/* =====================================================
+   CAMERA
+===================================================== */
+
+document
+.getElementById("startCameraButton")
+.onclick =
+startCamera;
+
+
+async function startCamera(){
+
+if(
+!navigator.mediaDevices ||
+!navigator.mediaDevices.getUserMedia
+){
+
+alert(
+"Camera is not supported. Please upload an image."
+);
+
+return;
+
+}
+
+stopCamera();
+
+try{
+
+setStatus("Starting camera...");
+
+cameraStream =
+await navigator.mediaDevices.getUserMedia({
+
+video:{
+facingMode:{
+ideal:currentFacingMode
+},
+width:{
+ideal:1280
+},
+height:{
+ideal:720
+}
+},
+
+audio:false
+
+});
+
+video.srcObject =
+cameraStream;
+
+video.style.display =
+"block";
+
+preview.style.display =
+"none";
+
+placeholder.style.display =
+"none";
+
+cameraControls.style.display =
+"flex";
+
+document
+.getElementById("startCameraButton")
+.style.display =
+"none";
+
+setStatus("Camera active");
+
+}
+
+catch(error){
+
+console.error(error);
+
+setStatus("Camera unavailable");
+
+alert(
+"Camera permission was denied or unavailable."
+);
+
+}
+
+}
+
+
+function stopCamera(){
+
+if(cameraStream){
+
+cameraStream
+.getTracks()
+.forEach(
+track => track.stop()
+);
+
+cameraStream = null;
+
+}
+
+}
+
+
+/* =====================================================
+   CAPTURE
+===================================================== */
+
+document
+.getElementById("captureButton")
+.onclick =
+capturePhoto;
+
+
+function capturePhoto(){
+
+if(!cameraStream){
+
+alert("Start the camera first.");
+
+return;
+
+}
+
+const canvas =
+document.createElement("canvas");
+
+canvas.width =
+video.videoWidth;
+
+canvas.height =
+video.videoHeight;
+
+canvas
+.getContext("2d")
+.drawImage(
+video,
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+photoData =
+canvas.toDataURL(
+"image/jpeg",
+0.88
+);
+
+preview.src =
+photoData;
+
+preview.style.display =
+"block";
+
+video.style.display =
+"none";
+
+cameraControls.style.display =
+"none";
+
+document
+.getElementById("retakeButton")
+.style.display =
+"block";
+
+stopCamera();
+
+setStatus("Photo captured");
+
+}
+
+
+/* =====================================================
+   SWITCH CAMERA
+===================================================== */
+
+document
+.getElementById("switchCameraButton")
+.onclick =
+async function(){
+
+currentFacingMode =
+currentFacingMode ===
+"environment"
+? "user"
+: "environment";
+
+await startCamera();
+
+};
+
+
+/* =====================================================
+   RETAKE
+===================================================== */
+
+document
+.getElementById("retakeButton")
+.onclick =
+function(){
+
+photoData = null;
+
+preview.src = "";
+
+preview.style.display =
+"none";
+
+placeholder.style.display =
+"flex";
+
+document
+.getElementById("retakeButton")
+.style.display =
+"none";
+
+document
+.getElementById("startCameraButton")
+.style.display =
+"block";
+
+setStatus("Ready");
+
+};
+
+
+/* =====================================================
+   FILE UPLOAD
+===================================================== */
+
+document
+.getElementById("fileButton")
+.onclick =
+function(){
+
+document
+.getElementById("fileInput")
+.click();
+
+};
+
+
+document
+.getElementById("fileInput")
+.onchange =
+function(){
+
+const file =
+this.files[0];
+
+if(!file)
+return;
+
+const reader =
+new FileReader();
+
+reader.onload =
+function(event){
+
+photoData =
+event.target.result;
+
+preview.src =
+photoData;
+
+preview.style.display =
+"block";
+
+video.style.display =
+"none";
+
+placeholder.style.display =
+"none";
+
+document
+.getElementById("startCameraButton")
+.style.display =
+"none";
+
+document
+.getElementById("retakeButton")
+.style.display =
+"block";
+
+setStatus("Photo loaded");
+
+};
+
+reader.readAsDataURL(file);
+
+};
+
+
+/* =====================================================
+   SAVE LOCATION
+===================================================== */
+
+function saveLocation(){
+
+localStorage.setItem(
+"roadwatchLatitude",
+latitude
+);
+
+localStorage.setItem(
+"roadwatchLongitude",
+longitude
+);
+
+localStorage.setItem(
+"roadwatchAccuracy",
+accuracy
+);
+
+localStorage.setItem(
+"roadwatchArea",
+areaName
+);
+
+localStorage.setItem(
+"roadwatchCity",
+cityName
+);
+
+localStorage.setItem(
+"roadwatchState",
+stateName
+);
+
+}
+
+
+/* =====================================================
+   GET GPS
+===================================================== */
+
+document
+.getElementById("locationButton")
+.onclick =
+getLocation;
+
+
+function getLocation(){
+
+if(!navigator.geolocation){
+
+alert(
+"GPS is not supported by this browser."
+);
+
+return;
+
+}
+
+setStatus("Getting GPS...");
+
+navigator.geolocation.getCurrentPosition(
+
+function(position){
+
+latitude =
+position.coords.latitude;
+
+longitude =
+position.coords.longitude;
+
+accuracy =
+position.coords.accuracy;
+
+
+areaName =
+"Current GPS Location";
+
+cityName =
+"Madhya Pradesh";
+
+
+document
+.getElementById("latitude")
+.textContent =
+latitude.toFixed(6);
+
+document
+.getElementById("longitude")
+.textContent =
+longitude.toFixed(6);
+
+document
+.getElementById("accuracy")
+.textContent =
+Math.round(accuracy) +
+" meters";
+
+document
+.getElementById("area")
+.textContent =
+areaName;
+
+document
+.getElementById("city")
+.textContent =
+cityName;
+
+
+saveLocation();
+
+markUserLocation();
+
+setStatus(
+"Location saved"
+);
+
+},
+
+function(error){
+
+console.error(error);
+
+setStatus("GPS unavailable");
+
+alert(
+"Please allow location permission and try again."
+);
+
+},
+
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
+}
+
+);
+
+}
+
+
+/* =====================================================
+   LOAD SAVED LOCATION
+===================================================== */
+
+function loadSavedLocation(){
+
+const savedLat =
+localStorage.getItem(
+"roadwatchLatitude"
+);
+
+const savedLng =
+localStorage.getItem(
+"roadwatchLongitude"
+);
+
+if(
+!savedLat ||
+!savedLng
+){
+
+return;
+
+}
+
+
+latitude =
+Number(savedLat);
+
+longitude =
+Number(savedLng);
+
+accuracy =
+Number(
+localStorage.getItem(
+"roadwatchAccuracy"
+)
+) || 0;
+
+
+areaName =
+localStorage.getItem(
+"roadwatchArea"
+) ||
+"Saved Location";
+
+cityName =
+localStorage.getItem(
+"roadwatchCity"
+) ||
+"Madhya Pradesh";
+
+stateName =
+localStorage.getItem(
+"roadwatchState"
+) ||
+"Madhya Pradesh";
+
+
+document
+.getElementById("latitude")
+.textContent =
+latitude.toFixed(6);
+
+document
+.getElementById("longitude")
+.textContent =
+longitude.toFixed(6);
+
+document
+.getElementById("accuracy")
+.textContent =
+Math.round(accuracy) +
+" meters";
+
+document
+.getElementById("area")
+.textContent =
+areaName;
+
+document
+.getElementById("city")
+.textContent =
+cityName;
+
+
+setStatus(
+"Saved location restored"
+);
+
+markUserLocation();
+
+}
+
+
+/* =====================================================
+   MAP
+===================================================== */
+
+function initializeMap(){
+
+roadMap =
+L.map("roadMap")
+.setView(
+[22.7196,75.8577],
+13
+);
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+attribution:
+"&copy; OpenStreetMap contributors"
+}
+).addTo(roadMap);
+
+
+const reports = [
+
+{
+lat:22.7196,
+lng:75.8577,
+problem:"Pothole",
+severity:"Critical"
+},
+
+{
+lat:22.7250,
+lng:75.8650,
+problem:"Road Crack",
+severity:"High"
+},
+
+{
+lat:22.7100,
+lng:75.8500,
+problem:"Waterlogging",
+severity:"Medium"
+},
+
+{
+lat:22.7350,
+lng:75.8450,
+problem:"Damaged Road",
+severity:"Low"
+}
+
+];
+
+
+reports.forEach(
+addReportMarker
+);
+
+}
+
+
+/* =====================================================
+   ROAD MARKERS
+===================================================== */
+
+function severityColor(severity){
+
+if(severity === "Critical")
+return "#ff1744";
+
+if(severity === "High")
+return "#ff8c00";
+
+if(severity === "Medium")
+return "#ffd
